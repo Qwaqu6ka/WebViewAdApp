@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">WebViewAdApp</string>
+    <string name="need_network">Network access is required for the application to work</string>
+    <string name="try_again">Try again</string>
 </resources>
