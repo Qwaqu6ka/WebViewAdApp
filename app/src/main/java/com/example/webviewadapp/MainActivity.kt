@@ -2,6 +2,8 @@ package com.example.webviewadapp
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
@@ -26,6 +28,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var link: String
+    private lateinit var preferences: SharedPreferences
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -35,16 +38,16 @@ class MainActivity : AppCompatActivity() {
             binding.webView.restoreState(savedInstanceState)
         } else {
             initWebView()
-            link = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).getString(LINK_KEY, "")
-                .toString()
+            preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            link = preferences.getString(LINK_KEY, "").toString()
 
             if (link != "") {
-                showPage(link)
+                showCap()
+//                showPage(link)    // TODO поменять в релизе
             } else if (isDeviceEmulator() || isSimAbsent()) {
-                // TODO showCap()
+                showCap()
             } else {
-                showPage("https://www.google.ru/")
-//                goToDatabase()
+                goToDatabase()
             }
         }
         binding.tryAgainButton.setOnClickListener { showPage(link) }
@@ -151,11 +154,21 @@ class MainActivity : AppCompatActivity() {
         try {
             val remoteConfig = Firebase.remoteConfig
             val configSettings = remoteConfigSettings {
-                minimumFetchIntervalInSeconds = 3600
+                minimumFetchIntervalInSeconds = 0
             }
             remoteConfig.setConfigSettingsAsync(configSettings)
             remoteConfig.setDefaultsAsync(mapOf("url" to ""))
-            // TODO ...
+            remoteConfig.fetchAndActivate().addOnCompleteListener { task ->
+                link = remoteConfig.getString("url")
+                if (!task.isSuccessful) {
+                    throw Exception("Database task isn't Successful")
+                } else if (link == "") {
+                    showCap()
+                } else {
+                    preferences.edit().putString(LINK_KEY, link).apply()
+                    showPage(link)
+                }
+            }
         } catch (e: Exception) {
             showDatabaseError(e.message)
         }
@@ -165,5 +178,10 @@ class MainActivity : AppCompatActivity() {
         binding.errorTextView.text = message
         binding.webView.visibility = View.GONE
         binding.errorLayout.visibility = View.VISIBLE
+    }
+
+    private fun showCap() {
+        startActivity(Intent(this, CapActivity::class.java))
+        finish()
     }
 }
