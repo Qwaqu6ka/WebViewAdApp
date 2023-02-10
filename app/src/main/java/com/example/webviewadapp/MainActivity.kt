@@ -1,6 +1,5 @@
 package com.example.webviewadapp
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -8,11 +7,8 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.telephony.TelephonyManager
 import android.view.View
-import android.webkit.CookieManager
-import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import com.example.webviewadapp.databinding.ActivityMainBinding
 import com.google.firebase.ktx.Firebase
@@ -20,8 +16,7 @@ import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import java.util.*
 
-
-private const val PREF_NAME = "com.example.webviewadapp"
+private const val PREF_NAME = "com.example.webviewadapp.preference"
 private const val LINK_KEY = "linkKey"
 
 class MainActivity : AppCompatActivity() {
@@ -34,63 +29,37 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (savedInstanceState != null) {
-            binding.webView.restoreState(savedInstanceState)
-        } else {
-            initWebView()
-            preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-            link = preferences.getString(LINK_KEY, "").toString()
+        preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        link = preferences.getString(LINK_KEY, "").toString()
 
-            if (link != "") {
-                showCap()
-//                showPage(link)    // TODO поменять в релизе
-            } else if (isDeviceEmulator() || isSimAbsent()) {
-                showCap()
-            } else {
-                goToDatabase()
-            }
+        if (link != "") {
+            showPage(link)
+        } else if (isDeviceEmulator() || isSimAbsent()) {
+            showCap()
+        } else {
+            goToDatabase()
         }
         binding.tryAgainButton.setOnClickListener { showPage(link) }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
-        super.onSaveInstanceState(outState, outPersistentState)
-        binding.webView.saveState(outState)
     }
 
     private fun showPage(link: String) {
         hideInternetLackMessage()
         if (isInternetAvailable()) {
-            binding.webView.loadUrl(link)
+            val intent = WebViewActivity.getIntent(this, link)
+            startActivity(intent)
+            finish()
         } else {
             showInternetLackMessage()
         }
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
-    private fun initWebView() {
-        binding.webView.webViewClient = WebViewClient()
-        val webSettings = binding.webView.settings
-        webSettings.loadWithOverviewMode = true
-        webSettings.useWideViewPort = true
-        webSettings.javaScriptEnabled = true
-        webSettings.domStorageEnabled = true
-        webSettings.javaScriptCanOpenWindowsAutomatically = true
-        webSettings.databaseEnabled = true
-        webSettings.setSupportZoom(false)
-        webSettings.allowFileAccess = true
-        webSettings.allowContentAccess = true
-        val cookieManager = CookieManager.getInstance()
-        cookieManager.setAcceptCookie(true)
-    }
-
     private fun showInternetLackMessage() {
-        binding.webView.visibility = View.GONE
+        binding.progressBar.visibility = View.GONE
         binding.internetLackLayout.visibility = View.VISIBLE
     }
 
     private fun hideInternetLackMessage() {
-        binding.webView.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.VISIBLE
         binding.internetLackLayout.visibility = View.GONE
     }
 
@@ -176,7 +145,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun showDatabaseError(message: String?) {
         binding.errorTextView.text = message
-        binding.webView.visibility = View.GONE
+        binding.progressBar.visibility = View.GONE
         binding.errorLayout.visibility = View.VISIBLE
     }
 

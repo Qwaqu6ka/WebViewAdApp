@@ -4,7 +4,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class NewsFetcher {
-
     companion object {
         val getApi: SportNewsApi by lazy {
             val retrofit = Retrofit.Builder()
