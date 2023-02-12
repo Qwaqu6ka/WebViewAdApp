@@ -39,6 +39,12 @@ class WebViewActivity : AppCompatActivity() {
         binding.webView.saveState(outState)
     }
 
+    override fun onBackPressed() {
+        if (binding.webView.canGoBack()) {
+            binding.webView.goBack();
+        }
+    }
+
     @SuppressLint("SetJavaScriptEnabled")
     private fun initWebView() {
         binding.webView.webViewClient = WebViewClient()

@@ -6,7 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.webviewadapp.WebViewActivity
+import com.example.webviewadapp.SportNewsDetails
 import com.example.webviewadapp.api.NewsFetcher
 import com.example.webviewadapp.api.models.NewsModel
 import com.example.webviewadapp.databinding.NewsItemBinding
@@ -15,7 +15,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
-class RecyclerAdapter(private val list: List<NewsModel>): RecyclerView.Adapter<RecyclerAdapter.NewsHolder>() {
+class RecyclerAdapter(private val list: List<NewsModel>) :
+    RecyclerView.Adapter<RecyclerAdapter.NewsHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NewsHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -26,31 +27,27 @@ class RecyclerAdapter(private val list: List<NewsModel>): RecyclerView.Adapter<R
     override fun getItemCount(): Int = list.size
 
     override fun onBindViewHolder(holder: NewsHolder, position: Int) {
-        holder.bind(list[position])
-        val imageUrl = list[position].urlToImage
+        val newsItem = list[position]
+        holder.bind(newsItem)
+        val imageUrl = newsItem.urlToImage
         if (imageUrl != null) {
             CoroutineScope(Dispatchers.Main).launch {
                 try {
-                    val scope = CoroutineScope(Dispatchers.Default)
-                    val bitmapDef = scope.async {
+                    val bitmapDef = CoroutineScope(Dispatchers.Default).async {
                         val response = NewsFetcher.getApi.getImage(imageUrl).execute()
                         response.body()?.byteStream().use(BitmapFactory::decodeStream)
                     }
                     val bitmap = bitmapDef.await()
                     if (bitmap != null)
                         holder.bindImage(bitmap)
-                }
-                catch (e: Exception) {
+                } catch (e: Exception) {
                     Log.d("debug", "Error with image loading", e)
                 }
             }
         }
-        holder.itemView.setOnClickListener {
-            val url = list[position].url
-            if (url != null) {
-                val intent = WebViewActivity.getIntent(it.context, url)
-                it.context.startActivity(intent)
-            }
+        holder.itemView.setOnClickListener { view ->
+            val intent = SportNewsDetails.getIntent(view.context, newsItem)
+            view.context.startActivity(intent)
         }
     }
 
@@ -62,7 +59,7 @@ class RecyclerAdapter(private val list: List<NewsModel>): RecyclerView.Adapter<R
         return position
     }
 
-    class NewsHolder(private val binding: NewsItemBinding): RecyclerView.ViewHolder(binding.root) {
+    class NewsHolder(private val binding: NewsItemBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(news: NewsModel) {
             binding.newsTitle.text = news.title
             binding.newsDescription.text = news.description
