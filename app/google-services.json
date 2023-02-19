@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "10938992080",
-    "project_id": "webviewadapp",
-    "storage_bucket": "webviewadapp.appspot.com"
+    "project_number": "470135153266",
+    "project_id": "rolibo-a8ed9",
+    "storage_bucket": "rolibo-a8ed9.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:10938992080:android:e4037bc67f9ece30d3e5d5",
+        "mobilesdk_app_id": "1:470135153266:android:feb7b56b377694dc8658eb",
         "android_client_info": {
-          "package_name": "com.example.webviewadapp"
+          "package_name": "bk.liga.stavok.ligastavok"
         }
       },
       "oauth_client": [
         {
-          "client_id": "10938992080-5e8vhu4nbcbgar7d45b9ttaubtvft3jl.apps.googleusercontent.com",
+          "client_id": "470135153266-vl8k14skiamq0c0m3hmvj7jhqcne13vc.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCg3vBBgOW-uCRmXa7wFIMRYTdrqkz0S8k"
+          "current_key": "AIzaSyDmaZvW4ZWBKku9kdizeekvwm0GQ84JIZw"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "10938992080-5e8vhu4nbcbgar7d45b9ttaubtvft3jl.apps.googleusercontent.com",
+              "client_id": "470135153266-vl8k14skiamq0c0m3hmvj7jhqcne13vc.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
